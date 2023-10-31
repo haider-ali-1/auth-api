@@ -24,21 +24,16 @@ const router = Router();
 
 router
   .route('/')
-
   .get(ensureAuthenticated, ensureAuthorized([USER_ROLES.ADMIN]), getAllUsers);
 
 router
   .route('/profile')
-
   .get(ensureAuthenticated, getCurrentUser)
-
   .patch(ensureAuthenticated, updateUserValidator, updateUser);
 
 router
   .route('/:userId')
-
   .get(ensureAuthenticated, ensureAuthorized([USER_ROLES.ADMIN]), getSingleUser)
-
   .delete(
     ensureAuthenticated,
     ensureAuthorized([USER_ROLES.ADMIN]),
@@ -47,7 +42,6 @@ router
 
 router
   .route('/:userId/update-role')
-
   .patch(
     ensureAuthenticated,
     ensureAuthorized(['admin']),

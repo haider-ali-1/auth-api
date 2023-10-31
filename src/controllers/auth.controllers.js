@@ -13,8 +13,8 @@ import {
   clearCookie,
 } from '../utils/auth.utils.js';
 
-import { USER_REGISTER_METHODS } from '../constants/user.constants.js';
 import { config } from '../configs/config.js';
+import { USER_REGISTER_METHODS } from '../constants/user.constants.js';
 
 // handle OAuth Signup
 export const handleOAuthSignup = async (profile, done) => {
@@ -54,7 +54,7 @@ export const handleOAuthLogin = asyncHandler(async (req, res, next) => {
   user.refreshTokens = [...user.refreshTokens, refreshToken];
   await user.save();
 
-  setCookie(res, 'jwt', refreshToken, process.env.JWT_ACCESS_TOKEN_SECRET);
+  setCookie(res, 'jwt', refreshToken, config.JWT_REFRESH_TOKEN_AGE);
   res
     .status(StatusCodes.OK)
     .redirect(`http://localhost:5000/dashboard?${accessToken}`);
@@ -79,7 +79,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
     role,
     emailVerificationToken: hashedToken,
     emailVerificationTokenExpireAt:
-      Date.now() + config.VERIFICATION_EMAIL_TOKEN_EXPIRE,
+      Date.now() + config.EMAIL_VERIFICATION_TOKEN_AGE,
   });
 
   const verificationURL = `${req.protocol}://${req.get('host')}${
@@ -117,7 +117,7 @@ export const resendEmail = asyncHandler(async (req, res, next) => {
 
   user.emailVerificationToken = hashedToken;
   user.emailVerificationTokenExpireAt =
-    Date.now() + config.VERIFICATION_EMAIL_TOKEN_EXPIRE;
+    Date.now() + config.EMAIL_VERIFICATION_TOKEN_AGE;
   await user.save();
 
   try {
@@ -187,7 +187,7 @@ export const loginUser = asyncHandler(async (req, res, next) => {
 
   user.refreshTokens = [...user.refreshTokens, refreshToken];
   await user.save();
-  setCookie(res, 'jwt', refreshToken, config.JWT_REFRESH_TOKEN_EXPIRE); // 24 hours
+  setCookie(res, 'jwt', refreshToken, config.JWT_REFRESH_TOKEN_AGE); // 24 hours
 
   res.status(StatusCodes.OK).json({
     status: 'success',
@@ -229,7 +229,7 @@ export const refreshAccessToken = asyncHandler(async (req, res, next) => {
   if (!token) throw new createError.Unauthorized('unauthorized request');
 
   // check if refresh token is invalid (if RT expire it will return error)
-  const decoded = jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET_KEY);
+  const decoded = jwt.verify(token, config.JWT_REFRESH_TOKEN_SECRET);
 
   // check if user exist (use select)
   const user = await User.findById(decoded?._id);
@@ -253,7 +253,7 @@ export const refreshAccessToken = asyncHandler(async (req, res, next) => {
 
   await user.save();
 
-  setCookie(res, 'jwt', refreshToken, config.REFRESH_TOKEN_EXPIRE_TIME);
+  setCookie(res, 'jwt', refreshToken, config.JWT_REFRESH_TOKEN_AGE);
   res.status(StatusCodes.OK).json({ status: 'success', accessToken });
 });
 
@@ -292,7 +292,7 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
 
     user.passwordResetToken = hashedToken;
     user.passwordResetTokenExpireAt =
-      Date.now() + config.PASSWORD_RESET_TOKEN_EXPIRE_TIME; // 15 minutes
+      Date.now() + config.PASSWORD_RESET_TOKEN_AGE;
 
     await user.save();
     await sendEmail(mailOptions);

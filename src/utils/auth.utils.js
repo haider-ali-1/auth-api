@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
+
 import { config } from '../configs/config.js';
 
 export const generateAccessAndRefreshTokens = (user) => {
@@ -9,16 +10,16 @@ export const generateAccessAndRefreshTokens = (user) => {
 
   const accessToken = jwt.sign(
     accessTokenPayload,
-    process.env.JWT_ACCESS_TOKEN_SECRET,
+    config.JWT_ACCESS_TOKEN_SECRET,
     {
-      expiresIn: config.JWT_ACCESS_TOKEN_EXPIRE,
+      expiresIn: config.JWT_ACCESS_TOKEN_AGE,
     }
   );
   const refreshToken = jwt.sign(
     refreshTokenPayload,
-    process.env.JWT_REFRESH_TOKEN_SECRET,
+    config.JWT_REFRESH_TOKEN_SECRET,
     {
-      expiresIn: config.JWT_ACCESS_TOKEN_EXPIRE,
+      expiresIn: config.JWT_REFRESH_TOKEN_AGE,
     }
   );
   return { accessToken, refreshToken };
@@ -34,13 +35,13 @@ export const setCookie = (res, name, value, age) => {
   res.cookie(name, value, {
     maxAge: age,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: config.NODE_ENV === 'production',
   });
 };
 
 export const clearCookie = (res, name) => {
   res.clearCookie(name, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: config.NODE_ENV === 'production',
   });
 };

@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken';
 import createError from 'http-errors';
 import mongoose from 'mongoose';
 
+import { config } from '../configs/config.js';
+
 export const errorHandler = (err, req, res, next) => {
   const { HttpError: expressVlidatorError } = createError;
   const { TokenExpiredError, JsonWebTokenError } = jwt;
@@ -63,7 +65,7 @@ export const errorHandler = (err, req, res, next) => {
     errors = [{ field: key, message: `${key} already exists`, value }];
   }
 
-  const inDevEnv = process.env.NODE_ENV === 'development';
+  const inDevEnv = config.NODE_ENV === 'development';
 
   // Final Error Response
   res.status(statusCode).json({

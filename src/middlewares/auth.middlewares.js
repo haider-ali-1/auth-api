@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import createError from 'http-errors';
 
 import { asyncHandler } from '../utils/shared.utils.js';
+import { config } from '../configs/config.js';
 
 export const ensureAuthenticated = asyncHandler(async (req, res, next) => {
   const authHeader =
@@ -13,7 +14,7 @@ export const ensureAuthenticated = asyncHandler(async (req, res, next) => {
     throw new createError.Unauthorized('please login');
 
   // token expired error will be fire from here
-  const user = jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET_KEY);
+  const user = jwt.verify(token, config.JWT_ACCESS_TOKEN_SECRET);
 
   req.user = user;
   next();
